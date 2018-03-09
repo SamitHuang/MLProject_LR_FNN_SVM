@@ -16,19 +16,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import log_loss,roc_curve, auc, accuracy_score, confusion_matrix
 from datetime import datetime
 
-
-DATA_PATH="../datasets/"
-
-DEBUG_MODE = True
-
-#logger.setLevel(logging.DEBUG)
-
-#params
+#hyperparameters
 epoch = 1000
 learning_rate = {"breast-cancer":2e-3,"wine":4e-7, "digit":1e-5,"diabetes":1e-3, "iris":40e-5 }
 
+#settings
 VALID_INTERVAL = 10
-
 
 class LogReg(object):
     def __init__(self, dataset):
@@ -40,6 +33,7 @@ class LogReg(object):
         self.lr = learning_rate[self.dataset_name]
 
         print("\nDataset: {}".format( self.dataset_name) )
+        print("Learning rate: ", self.lr)
 
     def sigmoid(self, x):
         return 1.0/(1.0+np.exp(-x))
@@ -125,13 +119,14 @@ def plot_curve( records):
 if __name__=="__main__":
     # interpret args
     parser = argparse.ArgumentParser(description='manual to this script')
-    parser.add_argument('--dataset', type=str, default = None)
-    #parser.add_argument('--epoch', type=int, default = 100)
+    parser.add_argument('--path', type=str, default = "../datasets")
     args = parser.parse_args()
-    dataset = args.dataset
-    #epoch = args.epoch
 
-    datasets = glob.glob( '../datasets' + '/*.npz')
+    if("npz" in args.path):
+        datasets = [args.path]
+    else:
+        datasets = glob.glob( args.path + '/*.npz')
+
     records ={}
     for dataset in datasets:
         LR = LogReg(dataset)
@@ -140,5 +135,3 @@ if __name__=="__main__":
         records[LR.dataset_name] = LR.acc_record
 
     plot_curve(records)
-
-
