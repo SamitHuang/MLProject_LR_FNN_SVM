@@ -83,6 +83,9 @@ class LogReg(object):
         print("=> Loss in test set: {:.4f}".format(loss_test))
         print("=> Accuracy in test set: {:.4f}".format(acc_test))
 
+        # plot confusion matrix and AUC
+
+
         #plot the performance changing curve
         #self.plot_curve(self.loss_record
 

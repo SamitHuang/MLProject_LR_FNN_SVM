@@ -16,6 +16,8 @@ from sklearn.metrics import log_loss, hinge_loss, roc_curve, auc, accuracy_score
 from sklearn import svm
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 import operator
+from datetime import datetime
+from utils import *
 
 #hyperparams
 gamma_range = [1, 1e-1, 1e-2, 1e-3]
@@ -48,9 +50,14 @@ class SVM(object):
 
     def train(self, kernel_type):
         print("--- Training {} SVM with Gamma = {} ---".format(kernel_type, self.bestGamma))
+        start_time = datetime.now()
+
         # Build the SVM with linear/RBF kernel
         clf = self.classifier(kernel_= kernel_type, gamma_=self.bestGamma, verbose_=VERBOSE)
         clf.fit(self.trainX, self.trainY)
+
+        time = datetime.now() - start_time
+        print("Finish training in ", time)
 
         # Compute the loss of the SVM on the training set and test set
         pred_decision_train = clf.decision_function(self.trainX)
@@ -72,6 +79,13 @@ class SVM(object):
         print("=> Accuracy in training set: {:.4f}".format(acc_train))
         print("=> Accuracy in test set: {:.4f}".format( acc_test))
         # save the well trained classifier
+
+        # plot AUC
+        fpr, tpr, _ = roc_curve(self.testY, pred_decision_test)
+        AUC = auc(fpr, tpr)
+        #plot_auc_curve(fpr, tpr, AUC)
+        cm = confusion_matrix(self.testY, predY)
+        plot_confusion_matrix(cm, ["Class 0", "Class 1"], title=self.dataset_name)
 
         self.clf = clf
 

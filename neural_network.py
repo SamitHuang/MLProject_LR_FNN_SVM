@@ -17,12 +17,14 @@ from sklearn.metrics import log_loss,roc_curve, auc, accuracy_score, confusion_m
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 import operator
+from datetime import datetime
+from utils import *
 
 #hyperparameters
 H_range = list(range(1,11)) # 1,...,10
-bestH= {"breast-cancer":2, "wine":6, "digit":10, "diabetes":8, "iris": 3 }
+bestH= {"breast-cancer":2, "wine": 4, "digit": 7, "diabetes": 9, "iris": 3 }
 lr = 2e-3   #learning rate
-learning_rate = {"breast-cancer":2e-3,"wine":1e-4, "digit":1e-2,"diabetes":10e-4, "iris":1e-3 }
+learning_rate = {"breast-cancer":2e-3,"wine":1e-4, "digit":1e-2,"diabetes":2e-3, "iris":1e-3 }
 
 epoch = 2000
 
@@ -56,8 +58,13 @@ class feedforward_neural_network(object):
     # train and tune the best H in [1,..,10]
     def train(self):
         print("--- Start training with H = {} ---".format(self.bestH))
+        start_time = datetime.now()
+
         clf = self.classifier(self.bestH, self.lr)
         clf.fit(self.trainX, self.trainY)
+
+        time = datetime.now() - start_time
+        print("Finish training in ", time)
 
         predY_train = clf.predict(self.trainX)
         predY = clf.predict(self.testX)
@@ -98,6 +105,8 @@ class feedforward_neural_network(object):
         acc = accuracy_score(self.testY, predY)
         print("=> Loss in test set: {:.4f}".format(loss))
         print("=> Accuracy in test set: {:.4f}".format(acc))
+        cm = confusion_matrix(self.testY, predY)
+        plot_confusion_matrix(cm, ['Class 0','Class 1'] , title=self.dataset_name)
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='manual to this script')
@@ -117,3 +126,4 @@ if __name__=="__main__":
             FNN.tune_using_cross_validation()
         FNN.train()
         FNN.evalute()
+
